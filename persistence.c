@@ -83,10 +83,12 @@ struct prefix prefixes[NUM_PREFIXES] = {
 int
 main()
 {
-    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
     unsigned max = 1;
 
+#ifdef USE_OPENMP
+    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
     #pragma omp parallel for schedule(dynamic)
+#endif
     for (unsigned digits = 2; digits <= MAX_DIGITS; digits++) {
         mpz_t num, pow;
         mpz_init(num);
@@ -113,18 +115,22 @@ main()
 
                     unsigned persistence = 1 + mpz_persistence(num);
                     if (persistence > max) {
+#ifdef USE_OPENMP
                         pthread_mutex_lock(&mtx);
                         if (persistence <= max) {
                             pthread_mutex_unlock(&mtx);
                             continue;
                         }
+#endif
                         printf("%02u:  %s", persistence, prefix->str);
                         for (unsigned i = 0; i < num7s; i++) printf("7");
                         for (unsigned i = 0; i < num8s; i++) printf("8");
                         for (unsigned i = 0; i < num9s; i++) printf("9");
                         printf("\n");
                         max = persistence;
+#ifdef USE_OPENMP
                         pthread_mutex_unlock(&mtx);
+#endif
                     }
                 }
             }
