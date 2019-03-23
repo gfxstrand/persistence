@@ -129,6 +129,18 @@ struct prefix prefixes[NUM_PREFIXES] = {
 int
 main()
 {
+#define DIGIT_DIVISOR 100
+    const unsigned digit_bucket_count = MAX_DIGITS / DIGIT_DIVISOR + 1;
+    unsigned digits_left[digit_bucket_count];
+    for (unsigned i = 0; i < digit_bucket_count; i++) {
+        if ((i + 1) * DIGIT_DIVISOR > MAX_DIGITS)
+            digits_left[i] = MAX_DIGITS - i * DIGIT_DIVISOR;
+        else
+            digits_left[i] = DIGIT_DIVISOR;
+    }
+    /* We start the loop at 2 but run it to a round number (not minus 1) */
+    digits_left[0] -= 1;
+
     unsigned max = 1;
 
 #ifdef USE_OPENMP
@@ -184,6 +196,22 @@ main()
 
         mpz_clear(num);
         mpz_clear(pow);
+
+        unsigned digits_bucket = (digits - 1) / DIGIT_DIVISOR;
+        if (__sync_sub_and_fetch(&digits_left[digits_bucket], 1) == 0) {
+#ifdef USE_OPENMP
+            pthread_mutex_lock(&mtx);
+#endif
+            unsigned bucket_digits = (digits_bucket + 1) * DIGIT_DIVISOR;
+            if (bucket_digits > MAX_DIGITS)
+                bucket_digits = MAX_DIGITS;
+
+            fprintf(stderr, "Finished searching at %u digits\n", bucket_digits);
+            fflush(stderr);
+#ifdef USE_OPENMP
+            pthread_mutex_unlock(&mtx);
+#endif
+        }
     }
 
     return 0;
