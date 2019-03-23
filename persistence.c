@@ -5,7 +5,9 @@
 #include <omp.h>
 #include <pthread.h>
 
-#define MAX_DIGITS 100000
+#ifndef MAX_DIGITS
+#define MAX_DIGITS 100
+#endif
 
 /* Destroys in */
 static void
