@@ -11,19 +11,6 @@
 static void
 mul_digits(mpz_t out, mpz_t in)
 {
-    mpz_tdiv_qr_ui(in, out, in, 10);
-
-    while (mpz_cmp_ui(in, 10) >= 0) {
-        unsigned r = mpz_tdiv_q_ui(in, in, 10);
-        mpz_mul_ui(out, out, r);
-    }
-
-    mpz_mul(out, out, in);
-}
-
-static void
-mul_digits2(mpz_t out, mpz_t in)
-{
     unsigned hist[10] = { 0, };
 
     while (mpz_cmp_ui(in, 0) > 0) {
@@ -36,11 +23,6 @@ mul_digits2(mpz_t out, mpz_t in)
     }
     unsigned r = mpz_get_ui(in);
     hist[r]++;
-
-    //if (hist[5] && (hist[2] || hist[4] || hist[6] || hist[8])) {
-    //    mpz_set_ui(out, 0);
-    //    return;
-    //}
 
     hist[2] += (hist[4] * 2) + hist[6] + (hist[8] * 3);
     hist[3] += hist[6] + (hist[9] * 2);
@@ -66,21 +48,6 @@ mul_digits2(mpz_t out, mpz_t in)
     mpz_clear(pow);
 }
 
-void (*freefunc) (void *, size_t);
-
-static unsigned
-mul_digits3(mpz_t out, mpz_t in)
-{
-    mpz_set_ui(out, 1);
-
-    char *str = mpz_get_str(NULL, 10, in);
-    unsigned i;
-    for (i = 0; str[i]; i++)
-        mpz_mul_ui(out, out, str[i] - '0');
-
-    freefunc(str, i + 1);
-}
-
 static unsigned
 mpz_persistence(mpz_t in)
 {
@@ -89,28 +56,7 @@ mpz_persistence(mpz_t in)
 
     unsigned count;
     for (count = 0; mpz_cmp_ui(in, 10) > 0; count++) {
-#if 0
-        mpz_t in1, in2, out1, out2;
-        mpz_init_set(in1, in);
-        mpz_init_set(in2, in);
-        mpz_init(out1);
-        mpz_init(out2);
-        mul_digits2(out1, in1);
-        mul_digits2(out2, in2);
-        if (mpz_cmp(out1, out2) != 0) {
-            printf("%s  %s  %s\n",
-                   mpz_get_str(NULL, 10, in),
-                   mpz_get_str(NULL, 10, out1),
-                   mpz_get_str(NULL, 10, out2));
-            abort();
-        }
-        mpz_clear(in1);
-        mpz_clear(in2);
-        mpz_clear(out1);
-        mpz_clear(out2);
-#endif
-
-        mul_digits2(tmp, in);
+        mul_digits(tmp, in);
         mpz_swap(tmp, in);
     }
 
@@ -137,17 +83,6 @@ struct prefix prefixes[NUM_PREFIXES] = {
 int
 main()
 {
-    mp_get_memory_functions (NULL, NULL, &freefunc);
-
-#if 0
-    mpz_t tmp_in, tmp_out;
-    mpz_init(tmp_out);
-    mpz_init_set_str(tmp_in, "108", 10);
-    mul_digits(tmp_out, tmp_in);
-    printf("%s\n", mpz_get_str(NULL, 10, tmp_out));
-    return 0;
-#endif
-
     pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
     unsigned max = 1;
 
