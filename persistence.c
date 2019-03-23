@@ -39,8 +39,6 @@ mul_digits(mpz_t out, mpz_t in)
         }
         hist[r]++;
     }
-    unsigned r = mpz_get_ui(in);
-    hist[r]++;
 
     hist[2] += (hist[4] * 2) + hist[6] + (hist[8] * 3);
     hist[3] += hist[6] + (hist[9] * 2);
