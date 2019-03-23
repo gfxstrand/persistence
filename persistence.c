@@ -89,12 +89,40 @@ struct prefix {
     unsigned prod;
 };
 
+/** Unique prefixes which do not contain 7, 8, or 9
+ *
+ * Given any number, we shrink it as far as possible by combining digits so
+ * as to get 7s, 8s, and 8s on the right-hand side and one of the six unique
+ * prefixes below on the left-hand side.  For instance, given the number
+ * 7236, we can split the digits it into primes and re-combine and get 479
+ * which is the smallest number whose digets multiply to the same value as
+ * 7236.  Using this scheme, and reforming all numbers as <prefix>777888999
+ * where the number of 7s, 8s, and 8s varies, we can get all unique products
+ * of digits with the smallest possible number.  This also gives us a very
+ * nice way to generate them.  I cannot take credit for this; it was Matt
+ * Parker's idea: https://www.youtube.com/watch?v=Wim9WJeDTHQ
+ *
+ * When we do this reduction, we are left with six unique prefixes that can
+ * end up at the front of the 7s, 8s, and 9s which I have in the list below
+ * sorted smallest to largest.  Even though 26 looks like the largest, the
+ * next 2-digit number will be a 2 followed by something that's at least a
+ * 7 so it really does make sense.
+ *
+ * I've left 5 in the list but commented it out because once you have a 5,
+ * you will always have a 5 and the moment you have both a 5 and an even
+ * number, you hit a multiple of 10 which then goes to 0.  Therefore, while
+ * it's theoretically possible that a persistent number exists which contains
+ * a 5, I've considered it so incredibly unlikely as to not be worth even
+ * bothering to search.  Searching all numbers up to 100 digits, cutting out
+ * the 5 cases saves about 10% of the runtime.
+ */
 #define NUM_PREFIXES 5
 struct prefix prefixes[NUM_PREFIXES] = {
     { "26", 2,  12  },
     { "2",  1,  2   },
     { "3",  1,  3   },
     { "4",  1,  4   },
+/*  { "5",  1,  4   }, */
     { "6",  1,  6   },
 };
 
