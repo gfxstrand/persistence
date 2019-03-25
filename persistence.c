@@ -132,7 +132,8 @@ main()
     /* We start the loop at 2 but run it to a round number (not minus 1) */
     digits_left[0] -= 1;
 
-    unsigned max = 1;
+    /* Only list things with a persistence of more than 2. */
+    unsigned max = 2;
 
 #ifdef USE_OPENMP
     pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
