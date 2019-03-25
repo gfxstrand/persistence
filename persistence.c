@@ -114,7 +114,7 @@ struct prefix {
  * bothering to search.  Searching all numbers up to 100 digits, cutting out
  * the 5 cases saves about 10% of the runtime.
  */
-#define NUM_PREFIXES 5
+#define NUM_PREFIXES 6
 struct prefix prefixes[NUM_PREFIXES] = {
     { "26", 2,  12  },
     { "2",  1,  2   },
@@ -122,6 +122,7 @@ struct prefix prefixes[NUM_PREFIXES] = {
     { "4",  1,  4   },
 /*  { "5",  1,  4   }, */
     { "6",  1,  6   },
+    { "",   0,  1   },
 };
 
 int
